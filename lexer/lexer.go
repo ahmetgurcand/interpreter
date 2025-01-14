@@ -15,6 +15,7 @@ func New(input string) *Lexer {
 	return l
 }
 
+// readChar enables program to read characters
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
@@ -28,9 +29,18 @@ func (l *Lexer) readChar() {
 
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
+
+	l.skipWthiteSpace()
+
 	switch l.ch {
 	case '=':
-		tok = newToken(token.ASSIGN, l.ch)
+			if l.peekChar() == '=' {
+				ch := l.ch
+				l.readChar()
+				tok = token.Token{Type: token.EQ, Literal: string(ch) + string(l.ch)}
+			} else {
+				tok = newToken(token.ASSIGN, l.ch)
+			}
 	case ';':
 		tok = newToken(token.SEMICOLON, l.ch)
 	case '(':
@@ -41,10 +51,28 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.COMMA, l.ch)
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
+	case '-':
+		tok = newToken(token.MINUS, l.ch)
 	case '{':
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
+	case '*':
+		tok = newToken(token.ASTERISK, l.ch)
+	case '<':
+		tok = newToken(token.LT, l.ch)
+	case '>':
+		tok = newToken(token.GT, l.ch)
+	case '!':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.NOT_EQ, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(token.BANG, l.ch)
+		}
+	case '/':
+		tok = newToken(token.SLASH, l.ch)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -53,6 +81,10 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Literal = l.readIdentifier()
 		tok.Type = token.LookupIdent(tok.Literal)
 		return tok
+		} else if isDigit(l.ch) {
+			tok.Type = token.INT
+			tok.Literal = l.readNumber()
+			return tok
 		} else {
 		tok = newToken(token.ILLEGAL, l.ch)
 		}
@@ -60,6 +92,7 @@ func (l *Lexer) NextToken() token.Token {
 	l.readChar()
 	return tok
 }
+
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
@@ -76,4 +109,32 @@ func (l *Lexer) readIdentifier() string {
 // isLetter checks whether the given argument is a letter
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '!'
+}
+
+// readIdentifier reads a number and advances lexer's positions
+func (l *Lexer) readNumber() string {
+	position := l.position
+	for isDigit(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+// isDigit checks whether the given argument is a number
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <='9'
+}
+// skipWhiteSpace enables to skip whitespace and some other
+func (l *Lexer) skipWthiteSpace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.readChar()
+	}
+}
+
+// peekChar enables to see next character without incrementing l.position
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
 }
