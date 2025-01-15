@@ -16,3 +16,5 @@ func main() {
 	fmt.Printf("Feel free to type in commands\n")
 	repl.Start(os.Stdin, os.Stdout)
 }
+
+// 2.2 Why not a parser generator? page 30
