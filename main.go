@@ -17,4 +17,4 @@ func main() {
 	repl.Start(os.Stdin, os.Stdout)
 }
 
-// 2.2 Why not a parser generator? page 30
+// 2.6 Prefix operators 59
