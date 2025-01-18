@@ -17,4 +17,3 @@ func main() {
 	repl.Start(os.Stdin, os.Stdout)
 }
 
-// 2.6 Prefix operators 59
