@@ -7,6 +7,7 @@ import (
 
 	"github.com/ahmetgurcand/interpreter/evaluator"
 	"github.com/ahmetgurcand/interpreter/lexer"
+	"github.com/ahmetgurcand/interpreter/object"
 	"github.com/ahmetgurcand/interpreter/parser"
 )
 
@@ -32,6 +33,7 @@ and finally prints all the tokens the lexer gives us until we encounter EOF.
 */
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Printf(PROMPT)
@@ -50,7 +52,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program)
+		evaluated := evaluator.Eval(program, env)
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect())
 			io.WriteString(out, "\n")
